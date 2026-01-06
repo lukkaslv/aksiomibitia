@@ -23,61 +23,50 @@ ${LEVELS.map(l => `УРОВЕНЬ ${l.id}: ${l.name}\n${l.axioms.map(a => `${a.i
 `;
 
 export const getAICoachResponse = async (userMessage: string, history: Message[], modelType: ModelType = 'flash') => {
-  let apiKey: string | undefined;
-  
-  try {
-    // Получаем значение из process.env.API_KEY
-    // @ts-ignore
-    const envValue = typeof process !== 'undefined' ? process.env.API_KEY : undefined;
-    
-    // Очищаем от пробелов и кавычек
-    apiKey = envValue?.trim().replace(/^["']|["']$/g, '');
-    
-    // Логируем для отладки в консоль браузера (безопасно)
-    if (apiKey) {
-      console.log(`[Config] API_KEY check: length=${apiKey.length}, prefix="${apiKey.substring(0, 4)}"`);
-    }
-  } catch (e) {
-    console.warn("Environment access error", e);
-  }
+  // Ключ берется из process.env.API_KEY
+  const apiKey = process.env.API_KEY;
 
-  // Сценарий 1: Ключ вообще не задан
-  if (!apiKey || apiKey === "undefined" || apiKey === "null" || apiKey === "") {
+  if (!apiKey) {
     throw new Error("API_KEY_MISSING");
   }
 
-  // Сценарий 2: Вместо значения вставлено имя переменной (например, "GEMINI_API_KEY")
-  const looksLikeVariableName = /^[A-Z_]+$/.test(apiKey) && (apiKey.includes("KEY") || apiKey.includes("GEMI"));
-  if (looksLikeVariableName || apiKey.startsWith("$")) {
-     throw new Error(`API_KEY_NAME_ERROR|${apiKey}`);
-  }
-
-  // Сценарий 3: Ключ есть, но формат неверный
-  if (!apiKey.startsWith("AIza")) {
-    throw new Error(`API_KEY_INVALID|${apiKey.substring(0, 4)}`);
-  }
-
+  // Создаем экземпляр прямо перед вызовом, чтобы всегда иметь актуальный ключ
   const ai = new GoogleGenAI({ apiKey });
   
-  const contents = history.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
+  const contents = history.map(m => ({ 
+    role: m.role === 'user' ? 'user' : 'model', 
+    parts: [{ text: m.text }] 
+  }));
   contents.push({ role: 'user', parts: [{ text: userMessage }] });
 
   const modelName = modelType === 'pro' ? 'gemini-3-pro-preview' : 'gemini-3-flash-preview';
   
   const config: any = { 
     systemInstruction: SYSTEM_INSTRUCTION, 
-    temperature: 0.75 
+    temperature: 0.8,
+    topP: 0.95,
   };
 
+  // Если выбрана Pro модель, добавляем бюджет на "размышления"
   if (modelType === 'pro') {
     config.thinkingConfig = { thinkingBudget: 16000 };
   }
 
-  const response = await ai.models.generateContent({
-    model: modelName,
-    contents: contents,
-    config: config
-  });
-  
-  return response.text;
+  try {
+    const response = await ai.models.generateContent({
+      model: modelName,
+      contents: contents,
+      config: config
+    });
+    
+    if (!response.text) {
+      throw new Error("EMPTY_RESPONSE");
+    }
+    
+    return response.text;
+  } catch (error: any) {
+    console.error("Gemini API Error details:", error);
+    // Прокидываем оригинальное сообщение об ошибке для диагностики
+    throw new Error(error.message || "UNKNOWN_API_ERROR");
+  }
 };
