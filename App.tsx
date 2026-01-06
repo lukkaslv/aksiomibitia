@@ -50,31 +50,31 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FCFCFC] text-[#1A1A1A]">
+    <div className="min-h-screen bg-[#FCFCFC] text-[#1A1A1A] overflow-x-hidden">
       <header className="fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-xl border-b border-gray-100 z-50">
-        <div className="max-w-7xl mx-auto h-full flex justify-between items-center px-6 lg:px-12">
-          <div className="flex items-center gap-4 cursor-pointer" onClick={() => { setView('study'); setActiveAxiom(undefined); }}>
-            <div className="w-8 h-8 bg-black rounded-xl flex items-center justify-center">
-               <div className="w-2 h-2 bg-white rounded-full"></div>
+        <div className="max-w-7xl mx-auto h-full flex justify-between items-center px-4 lg:px-12">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setView('study'); setActiveAxiom(undefined); }}>
+            <div className="w-7 h-7 bg-black rounded-lg flex items-center justify-center">
+               <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
             </div>
-            <h1 className="serif text-xl font-semibold tracking-tight">Аксиомы Бытия</h1>
+            <h1 className="serif text-lg font-semibold tracking-tight">Аксиомы</h1>
           </div>
-          <nav className="flex items-center gap-8">
+          <nav className="flex items-center gap-6 lg:gap-8">
             <button onClick={() => setView('study')} className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${view === 'study' ? 'text-black' : 'text-gray-300 hover:text-gray-500'}`}>Практика</button>
             <button onClick={() => setView('dashboard')} className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${view === 'dashboard' ? 'text-black' : 'text-gray-300 hover:text-gray-500'}`}>Путь</button>
           </nav>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto pt-32 pb-24 px-6 lg:px-12">
+      <main className="max-w-7xl mx-auto pt-24 pb-20 px-4 lg:px-12">
         {view === 'dashboard' ? (
           <Dashboard progress={progress} onClose={() => setView('study')} />
         ) : (
-          <div className="grid lg:grid-cols-12 gap-16">
-            <aside className="lg:col-span-3 space-y-6">
-              <div className="sticky top-32">
-                <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400 mb-8 pl-1">Архитектура</h3>
-                <div className="space-y-3">
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-16">
+            <aside className="lg:col-span-3">
+              <div className="lg:sticky lg:top-32">
+                <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400 mb-4 pl-1">Архитектура</h3>
+                <div className="flex lg:flex-col gap-3 overflow-x-auto lg:overflow-x-visible pb-4 lg:pb-0 no-scrollbar">
                   {LEVELS.map((level, idx) => (
                     <LevelCard 
                       key={level.id} 
@@ -89,15 +89,15 @@ const App: React.FC = () => {
             </aside>
 
             <section className="lg:col-span-9">
-              <div className="mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-gray-100/50 border border-gray-100 text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-6">
+              <div className="mb-10 lg:mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div className="inline-flex items-center gap-3 px-4 py-1 rounded-full bg-gray-100/50 border border-gray-100 text-[9px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-4 lg:mb-6">
                   Уровень {selectedLevel.id} • {selectedLevel.code}
                 </div>
-                <h2 className="serif text-4xl lg:text-7xl font-medium mb-6 leading-tight">{selectedLevel.name}</h2>
-                <p className="text-xl lg:text-3xl text-gray-400 font-light leading-relaxed serif italic max-w-2xl">{selectedLevel.subtitle}</p>
+                <h2 className="serif text-3xl lg:text-7xl font-medium mb-4 lg:mb-6 leading-tight">{selectedLevel.name}</h2>
+                <p className="text-lg lg:text-3xl text-gray-400 font-light leading-relaxed serif italic max-w-2xl">{selectedLevel.subtitle}</p>
               </div>
 
-              <div className="space-y-8">
+              <div className="space-y-6 lg:space-y-8">
                 {selectedLevel.axioms.map((axiom, idx) => {
                   const isStudied = progress.studiedAxiomIds.includes(axiom.id);
                   const isLocked = isAxiomLocked(idx);
@@ -105,11 +105,11 @@ const App: React.FC = () => {
 
                   if (isLocked) {
                     return (
-                      <div key={axiom.id} className="p-8 rounded-[40px] border border-gray-50 bg-gray-50/20 opacity-30 flex items-center gap-6">
-                        <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center bg-white">
-                          <svg className="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                      <div key={axiom.id} className="p-6 lg:p-8 rounded-[30px] lg:rounded-[40px] border border-gray-50 bg-gray-50/20 opacity-30 flex items-center gap-4 lg:gap-6">
+                        <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full border border-gray-200 flex items-center justify-center bg-white shrink-0">
+                          <svg className="w-3.5 h-3.5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                         </div>
-                        <span className="text-sm text-gray-400 font-light italic">Постигните предыдущую истину, чтобы открыть эту...</span>
+                        <span className="text-sm text-gray-400 font-light italic">Постигните предыдущую истину...</span>
                       </div>
                     );
                   }
@@ -117,55 +117,55 @@ const App: React.FC = () => {
                   return (
                     <div 
                       key={axiom.id} 
-                      className={`group rounded-[40px] transition-all duration-700 border overflow-hidden ${
+                      className={`group rounded-[30px] lg:rounded-[40px] transition-all duration-700 border overflow-hidden ${
                         isOpen ? 'bg-white border-gray-200 shadow-2xl shadow-gray-100' : 'bg-white border-gray-50 hover:border-gray-100'
                       }`}
                     >
-                      <div className="p-8 lg:p-12 flex items-start gap-8">
+                      <div className="p-6 lg:p-12 flex items-start gap-4 lg:gap-8">
                         <button 
                           onClick={(e) => { e.stopPropagation(); toggleStudied(axiom.id); }} 
-                          className={`mt-1.5 w-8 h-8 rounded-xl border-2 flex items-center justify-center transition-all duration-500 ${isStudied ? 'bg-black border-black text-white' : 'border-gray-100 text-transparent group-hover:border-gray-300'}`}
+                          className={`mt-1 w-7 h-7 lg:w-8 lg:h-8 rounded-lg lg:rounded-xl border-2 flex items-center justify-center shrink-0 transition-all duration-500 ${isStudied ? 'bg-black border-black text-white' : 'border-gray-100 text-transparent'}`}
                         >
-                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M5 13l4 4L19 7" /></svg>
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path d="M5 13l4 4L19 7" /></svg>
                         </button>
                         
                         <div className="flex-1 cursor-pointer" onClick={() => setActiveAxiom(isOpen ? undefined : axiom)}>
-                          <div className="flex justify-between items-center mb-4">
-                            <h4 className={`text-xl lg:text-3xl font-medium transition-colors ${isOpen ? 'text-black' : 'text-gray-900'}`}>{axiom.title}</h4>
-                            <span className="text-[10px] font-mono text-gray-200 group-hover:text-gray-400">{axiom.id}</span>
+                          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-3 lg:mb-4">
+                            <h4 className={`text-lg lg:text-3xl font-medium transition-colors ${isOpen ? 'text-black' : 'text-gray-900'}`}>{axiom.title}</h4>
+                            <span className="text-[9px] font-mono text-gray-200 mt-1 lg:mt-0">{axiom.id}</span>
                           </div>
-                          <p className={`text-base lg:text-xl leading-relaxed font-light ${isOpen ? 'text-gray-600' : 'text-gray-400'}`}>{axiom.description}</p>
+                          <p className={`text-sm lg:text-xl leading-relaxed font-light ${isOpen ? 'text-gray-600' : 'text-gray-400'}`}>{axiom.description}</p>
                           
                           {isOpen && (
-                            <div className="mt-12 space-y-12 animate-in fade-in slide-in-from-top-4 duration-700" onClick={e => e.stopPropagation()}>
-                              <div className="grid lg:grid-cols-2 gap-12">
-                                <div className="space-y-4">
-                                  <h5 className="text-[10px] font-bold uppercase tracking-[0.25em] text-gray-400">Глубина</h5>
-                                  <p className="text-gray-700 leading-relaxed font-light">{axiom.explanation}</p>
+                            <div className="mt-8 lg:mt-12 space-y-8 lg:space-y-12 animate-in fade-in slide-in-from-top-4 duration-700" onClick={e => e.stopPropagation()}>
+                              <div className="flex flex-col lg:grid lg:grid-cols-2 gap-8 lg:gap-12">
+                                <div className="space-y-3 lg:space-y-4">
+                                  <h5 className="text-[9px] font-bold uppercase tracking-[0.25em] text-gray-400">Глубина</h5>
+                                  <p className="text-sm lg:text-base text-gray-700 leading-relaxed font-light">{axiom.explanation}</p>
                                 </div>
-                                <div className="space-y-4 p-8 bg-gray-50 rounded-3xl border border-gray-100">
-                                  <h5 className="text-[10px] font-bold uppercase tracking-[0.25em] text-gray-900">Практика дня</h5>
-                                  <p className="text-gray-800 font-medium italic">{axiom.practice}</p>
+                                <div className="space-y-3 lg:space-y-4 p-6 lg:p-8 bg-gray-50 rounded-2xl lg:rounded-3xl border border-gray-100">
+                                  <h5 className="text-[9px] font-bold uppercase tracking-[0.25em] text-gray-900">Практика дня</h5>
+                                  <p className="text-sm lg:text-base text-gray-800 font-medium italic">{axiom.practice}</p>
                                 </div>
                               </div>
 
-                              <div className="pt-12 border-t border-gray-50 space-y-6">
-                                <h5 className="text-[10px] font-bold uppercase tracking-[0.25em] text-gray-400">Дневник осознания</h5>
+                              <div className="pt-8 lg:pt-12 border-t border-gray-50 space-y-4 lg:space-y-6">
+                                <h5 className="text-[9px] font-bold uppercase tracking-[0.25em] text-gray-400">Дневник осознания</h5>
                                 <textarea 
                                   value={progress.notes[axiom.id] || ''} 
                                   onChange={e => updateNote(axiom.id, e.target.value)} 
-                                  placeholder="Что вы чувствуете, проживая эту аксиому?" 
-                                  className="w-full bg-gray-50/50 rounded-3xl p-6 text-base resize-none h-40 border border-transparent focus:bg-white focus:border-gray-100 outline-none transition-all"
+                                  placeholder="Что вы чувствуете?" 
+                                  className="w-full bg-gray-50/50 rounded-2xl lg:rounded-3xl p-5 lg:p-6 text-sm lg:text-base resize-none h-32 lg:h-40 border border-transparent focus:bg-white focus:border-gray-100 outline-none transition-all"
                                 />
-                                <div className="flex gap-4">
+                                <div className="flex flex-col lg:flex-row gap-3">
                                   <input 
                                     id={`in-${axiom.id}`} 
                                     type="text" 
                                     placeholder="Инсайт момента..." 
-                                    className="flex-1 bg-gray-50/50 rounded-2xl px-6 py-4 border border-transparent focus:bg-white focus:border-gray-100 outline-none" 
+                                    className="flex-1 bg-gray-50/50 rounded-xl lg:rounded-2xl px-5 py-3 lg:py-4 border border-transparent focus:bg-white focus:border-gray-100 outline-none text-sm" 
                                     onKeyDown={e => { if (e.key === 'Enter') { addInsight(axiom.id, e.currentTarget.value); e.currentTarget.value = ''; } }} 
                                   />
-                                  <button onClick={() => { const i = document.getElementById(`in-${axiom.id}`) as HTMLInputElement; addInsight(axiom.id, i.value); i.value = ''; }} className="px-10 bg-black text-white rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all">Записать</button>
+                                  <button onClick={() => { const i = document.getElementById(`in-${axiom.id}`) as HTMLInputElement; addInsight(axiom.id, i.value); i.value = ''; }} className="w-full lg:w-auto px-8 py-3 bg-black text-white rounded-xl lg:rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] active:scale-95 transition-all">Записать</button>
                                 </div>
                               </div>
                             </div>
@@ -181,8 +181,8 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <footer className="py-24 border-t border-gray-50 text-center opacity-30">
-        <p className="serif italic text-sm mb-4">Тишина — лучший учитель.</p>
+      <footer className="py-16 lg:py-24 border-t border-gray-50 text-center opacity-30">
+        <p className="serif italic text-xs lg:text-sm mb-4">Тишина — лучший учитель.</p>
         <div className="w-1 h-1 bg-black rounded-full mx-auto"></div>
       </footer>
     </div>

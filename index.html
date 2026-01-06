@@ -3,7 +3,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Аксиомы Бытия</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,36 +12,29 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #ffffff;
+            background-color: #fcfcfc;
             color: #1a1a1a;
             margin: 0;
+            overflow-x: hidden; /* Защита от горизонтального скролла */
         }
         .serif {
             font-family: 'Playfair Display', serif;
         }
-        /* Убираем мерцание при загрузке */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
         #root:empty {
             display: flex;
             align-items: center;
-            justify-center;
+            justify-content: center;
             height: 100vh;
             background: #fff;
         }
     </style>
-    
-    <!-- Скрипт для обработки перенаправлений с 404.html на GitHub Pages -->
-    <script type="text/javascript">
-      (function(l) {
-        if (l.search[1] === '/' ) {
-          var decoded = l.search.slice(1).split('&').map(function(s) { 
-            return s.replace(/~and~/g, '&') 
-          }).join('?');
-          window.history.replaceState(null, null,
-              l.pathname.slice(0, l.pathname.lastIndexOf('/')) + decoded + l.hash
-          );
-        }
-      }(window.location))
-    </script>
 
     <script type="importmap">
     {
@@ -57,7 +50,6 @@
 </head>
 <body>
     <div id="root"></div>
-    <!-- Критически важное добавление: запуск приложения -->
     <script type="module" src="./index.tsx"></script>
 <script type="module" src="/index.tsx"></script>
 </body>
