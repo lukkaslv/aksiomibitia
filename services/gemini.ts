@@ -23,20 +23,21 @@ ${LEVELS.map(l => `УРОВЕНЬ ${l.id}: ${l.name}\n${l.axioms.map(a => `${a.i
 `;
 
 export const getAICoachResponse = async (userMessage: string, history: Message[], modelType: ModelType = 'flash') => {
-  // Создаем экземпляр прямо перед вызовом, чтобы подхватить актуальный ключ
+  // Важно: создаем новый экземпляр при каждом запросе, чтобы использовать актуальный API_KEY
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const contents = history.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
   contents.push({ role: 'user', parts: [{ text: userMessage }] });
 
-  // Используем gemini-flash-latest для большей стабильности
-  const modelName = modelType === 'pro' ? 'gemini-3-pro-preview' : 'gemini-flash-latest';
+  // Используем Gemini 3 для лучшей производительности и совместимости
+  const modelName = modelType === 'pro' ? 'gemini-3-pro-preview' : 'gemini-3-flash-preview';
   
   const config: any = { 
     systemInstruction: SYSTEM_INSTRUCTION, 
     temperature: 0.75 
   };
 
+  // Thinking доступен только для Pro версии
   if (modelType === 'pro') {
     config.thinkingConfig = { thinkingBudget: 16000 };
   }
