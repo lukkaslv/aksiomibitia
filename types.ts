@@ -3,7 +3,8 @@ export interface Axiom {
   id: string;
   title: string;
   description: string;
-  examples?: string[];
+  explanation: string;
+  practice: string;
 }
 
 export interface Level {
@@ -13,13 +14,6 @@ export interface Level {
   subtitle: string;
   axioms: Axiom[];
 }
-
-export interface Message {
-  role: 'user' | 'model';
-  text: string;
-}
-
-export type ModelType = 'flash' | 'pro';
 
 export interface UserProgress {
   studiedAxiomIds: string[];
