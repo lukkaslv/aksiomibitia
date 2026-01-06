@@ -18,7 +18,6 @@ const AICoach: React.FC<AICoachProps> = ({ currentAxiom }) => {
   const [isAiStudio, setIsAiStudio] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Проверка ключа при загрузке
   useEffect(() => {
     const checkKey = async () => {
       // @ts-ignore
@@ -28,8 +27,6 @@ const AICoach: React.FC<AICoachProps> = ({ currentAxiom }) => {
         const selected = await aiStudio.hasSelectedApiKey();
         setHasKey(selected);
       } else {
-        // Мы не в AI Studio (например, на Vercel). 
-        // Не блокируем пользователя, предполагая, что ключ настроен в окружении.
         setIsAiStudio(false);
         setHasKey(true); 
       }
@@ -54,7 +51,6 @@ const AICoach: React.FC<AICoachProps> = ({ currentAxiom }) => {
       try {
         // @ts-ignore
         await window.aistudio.openSelectKey();
-        // Согласно правилам: после вызова openSelectKey считаем, что ключ выбран
         setHasKey(true);
       } catch (e) {
         console.error("Failed to open key dialog", e);
@@ -66,7 +62,6 @@ const AICoach: React.FC<AICoachProps> = ({ currentAxiom }) => {
     const trimmedText = text.trim();
     if (!trimmedText || isLoading) return;
 
-    // Если мы в AI Studio и ключа нет — заставляем выбрать
     if (isAiStudio && !hasKey) {
       handleOpenKeyDialog();
       return;
@@ -82,38 +77,66 @@ const AICoach: React.FC<AICoachProps> = ({ currentAxiom }) => {
       const response = await getAICoachResponse(trimmedText, messages, currentModel);
       setMessages(prev => [...prev, { role: 'model', text: response || 'Тишина тоже является ответом.' }]);
     } catch (error: any) {
-      console.error("API Error:", error);
-      const errorMsg = error?.message || "";
+      console.error("API Error Detailed:", error);
+      const errorStr = String(error.message || error);
       
-      if (errorMsg.includes("not found") || errorMsg.includes("403") || errorMsg.includes("401") || errorMsg.includes("API_KEY")) {
-        // Если запрос не прошел из-за ключа, показываем ошибку в чате
-        setMessages(prev => [
-          ...prev, 
-          { 
-            role: 'model', 
-            text: isAiStudio 
-              ? '🔑 Ключ не прошел проверку. Пожалуйста, выберите другой ключ в меню.' 
-              : '🔑 Ошибка доступа. Проверьте, что в Vercel добавлена переменная API_KEY и она верна.' 
-          }
-        ]);
-        if (isAiStudio) setHasKey(false);
-      } else {
-        setMessages(prev => [...prev, { role: 'model', text: '❌ Произошла ошибка при обращении к ИИ. Попробуйте еще раз или смените модель.' }]);
+      let feedback = (
+        <div className="space-y-2">
+          <p className="font-bold text-red-500 text-xs">❌ ОШИБКА КОНФИГУРАЦИИ</p>
+          <p className="text-xs">Произошла техническая ошибка при обращении к ИИ.</p>
+        </div>
+      );
+      
+      if (errorStr.includes("API_KEY_MISSING")) {
+        feedback = (
+          <div className="space-y-3">
+            <p className="font-bold text-amber-600 text-xs">🔑 КЛЮЧ НЕ НАЙДЕН</p>
+            <p className="text-xs leading-relaxed">В настройках Vercel отсутствует переменная <b>API_KEY</b>. Добавьте её в <i>Settings -&gt; Environment Variables</i> и сделайте <b>Redeploy</b>.</p>
+          </div>
+        );
+      } else if (errorStr.includes("API_KEY_NAME_ERROR")) {
+        const found = errorStr.split('|')[1] || 'GEMINI_API_KEY';
+        feedback = (
+          <div className="space-y-3">
+            <p className="font-bold text-red-600 text-xs">⚠️ ОШИБКА ЗНАЧЕНИЯ</p>
+            <p className="text-xs leading-relaxed">Вы вставили текст <b>"{found}"</b> вместо самого ключа. Ключ — это длинный код из букв и цифр, начинающийся на <b>AIza...</b></p>
+            <div className="bg-red-50 p-2 rounded text-[10px] text-red-800 border border-red-100">
+              <b>Как исправить:</b> Зайдите в Vercel, замените значение переменной <code>API_KEY</code> на настоящий ключ из Google AI Studio и нажмите <b>Redeploy</b>.
+            </div>
+          </div>
+        );
+      } else if (errorStr.includes("API_KEY_INVALID")) {
+        const start = errorStr.split('|')[1] || '';
+        feedback = (
+          <div className="space-y-3">
+            <p className="font-bold text-red-600 text-xs">⚠️ НЕВЕРНЫЙ ФОРМАТ</p>
+            <p className="text-xs leading-relaxed">Ваш ключ начинается на "{start}", но настоящий ключ всегда начинается на <b>AIza</b>. Проверьте, что вы скопировали <i>API Key</i>, а не ID проекта.</p>
+          </div>
+        );
+      } else if (errorStr.includes("403") || errorStr.includes("401")) {
+        feedback = (
+          <div className="space-y-2">
+            <p className="font-bold text-red-600 text-xs">🚫 ОШИБКА ДОСТУПА</p>
+            <p className="text-xs">Google отклонил запрос. Проверьте статус ключа (API Key) в Google AI Studio — он должен быть активным.</p>
+          </div>
+        );
       }
+
+      setMessages(prev => [...prev, { role: 'model', text: '', customNode: feedback } as any]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const renderMessageText = (text: string) => {
-    return text.split('\n').map((paragraph, pIdx) => (
+  const renderMessageText = (msg: Message & { customNode?: React.ReactNode }) => {
+    if (msg.customNode) return msg.customNode;
+    return msg.text.split('\n').map((paragraph, pIdx) => (
       <p key={pIdx} className="mb-3 last:mb-0">{paragraph}</p>
     ));
   };
 
   return (
     <div className="flex flex-col h-[500px] sm:h-[650px] border border-gray-100 rounded-[24px] bg-white overflow-hidden shadow-xl relative">
-      {/* Только для AI Studio: если ключ не выбран, показываем кнопку */}
       {isAiStudio && hasKey === false && (
         <div className="absolute inset-0 z-20 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center p-8 text-center">
           <h3 className="serif text-xl font-semibold mb-4">Требуется API Ключ</h3>
@@ -152,7 +175,7 @@ const AICoach: React.FC<AICoachProps> = ({ currentAxiom }) => {
             <div className={`max-w-[85%] p-4 rounded-2xl text-sm lg:text-base ${
               m.role === 'user' ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-800'
             }`}>
-              {renderMessageText(m.text)}
+              {renderMessageText(m as any)}
             </div>
           </div>
         ))}
